@@ -1,0 +1,795 @@
+\documentclass[a4paper, 11pt]{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+
+
+\usepackage{color, geometry, amsmath, amssymb, graphicx, 
+            listings, fixmath, rotating, url}
+
+\usepackage{threeparttable, setspace}
+\usepackage[utf8]{inputenc}
+\usepackage{mathrsfs, ragged2e, booktabs}
+
+
+\usepackage{color, geometry, amsmath, amssymb, graphicx, 
+            listings, fixmath, rotating, url}
+\usepackage{threeparttable, setspace}
+\usepackage[utf8]{inputenc}
+\usepackage{mathrsfs, ragged2e, booktabs}
+\usepackage{textcomp, bbm}
+\usepackage[toc, page]{appendix}
+\usepackage[skip=0pt]{caption}
+\usepackage{siunitx}  % Align numbers within tables.
+%% To aligh wrt decimal point
+\usepackage{siunitx, booktabs}
+\usepackage{dcolumn}
+
+\newcolumntype{L}{D{.}{.}{2,5}}
+
+\usepackage{color, geometry, amsmath, amssymb, graphicx, 
+            listings, fixmath, inputenc, rotating}
+\usepackage{threeparttable, setspace}
+\usepackage[labelsep=period]{caption}
+\captionsetup[figure]{font= small}
+\captionsetup{font= small}
+%\numberwithin{figure}{section}
+\usepackage{chngcntr}
+%\counterwithin{table}{section}
+
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+\setcitestyle{authoryear,open={(},close={)}}
+
+\newcommand{\sigmaARIMA}{\sigma^2_{\varepsilon_{t} | \Phi_{t - 1}}}
+\newcommand{\vgamcol}{{\color{cyan}\textsf{VGAM}} }
+\newcommand{\vgamExtracol}{{\color{cyan}\textsf{VGAMextra}} }
+\newcommand{\Rcol}{{\color{blue} {\large \texttt{R}}}~}
+\newcommand{\logee}{{ \color{blue}\texttt{loge}} }
+\newcommand{\toppleMean}{1 - \frac{ 4^\theta \Gamma(1 + \theta)^2 }{ 
+                                \Gamma(2 + 2\theta)}}
+                               
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Some required files
+\input{./pagelayoutWOmargins.tex}
+\input{./colors17.tex}
+
+
+%<<setupoptions, include=FALSE, echo=FALSE>>=
+%opts_chunk$set(fig.pos='h')
+%@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\title{ The {\color{blue} \texttt{R}} packages
+{\color{cyan} \textsf{VGAM}} and 
+{\color{cyan} \textsf{VGAMextra}} handling \\
+systems of cointegrated time series (Bivariate case)}
+\author{by Victor Miranda\\
+{\small PhD Candidate, The University of Auckland}\\
+\small{Supervisor: Thomas Yee.}}
+
+\date{\today}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+\maketitle
+\vspace{-5mm}
+\noindent
+VGLMs/VGAMs possess infrastructure to handle
+      systems of 
+      {\color{red} cointegrated} time series (SCTSs).
+      At present, I have developed software to maneuver 
+      two $I(1)$, or cointegrated order--1, time series following
+      the two--step approach introduced by \cite{engl:gran:1987}.
+      This methodology involves unit root test as preamble
+      to specify an error--correction model (ECMs) to 
+      accommodate long--stochastic trends.
+      
+      \vspace{2mm}
+      Along this line, 
+      \cite{pfaf:2011} presents a compendium 
+of techniques to handle cointegrated time series
+under the same approach
+with examples in {\color{blue} \texttt{R}}, including ECMs.
+%where the ECM explored in this section is an special case.
+However, the \Rcol code choices presented seems not to
+handle the general case:
+when the off--diagonal elements of the covariance matrix are non--zero.
+As we will see later in this document and compared to 
+\cite{pfaf:2011}, VGLMs become a natural choice accommodating
+ECMs operating the general case,
+and also open further areas for development.
+%However, while the book represent a 
+%rigorous study on cointegration and unit roots, 
+%several major inconsistencies in notation can 
+%be advised, whereas the \Rcol~code derived from the examples
+%ask for major improvements in terms of quality, efficiency, and 
+%time--computing.
+
+\vspace{2mm}
+Firstly, we say that the components of a $p$--dimensional
+vector
+$\boldsymbol{y}_t = (y_{1, t}, \ldots, y_{p, t})$
+are cointegrated of order $d$, $b$, if all
+the components of $\boldsymbol{y}_t$ are integrated of order
+$d$, i.e., $y_{i, t} \sim I(d)$, and there exists a non--zero vector,
+$\boldsymbol{\alpha} = (\alpha_1, \ldots, \alpha_p)^T$ such that 
+\begin{equation}\label{eq:one}
+\boldsymbol{\alpha}^T \boldsymbol{y}_t \sim I(d - b).
+\end{equation}
+This is denoted $\boldsymbol{y}_t \sim \textrm{CI}(d, b)$.
+
+\vspace{2mm}
+As mentioned, we will consider the case $d = b = 1$, and 
+$p = 2$. That is, $\boldsymbol{y}_t = (y_{1, t}, y_{2, t})^T$,
+$y_{i, t} \sim I(1)$.
+Thus simulate
+ %$\{ y_{1, t} \}$} and 
+ %{\color{darkblue}$\{ y_{2, t} \}$},
+{\color{darkblue}$\mathbold{y}_t = 
+ (y_{1, t}, y_{2, t})^T$},
+ two {\color{red} random walks}, $n = 280$:
+ %
+ {\color{darkblue}
+ \begin{align} \label{sim:coint}
+  y_{1, t} &~= y_{1, t - 1} + \varepsilon_{1, t}, \\
+ \nonumber y_{2, t} &~= \beta_0 + \beta_1 y_{1, t} + 
+    \beta_2 y_{2, t - 1} + \varepsilon_{2, t},
+ \end{align}
+}
+ 
+ where {\color{darkblue} $\mathbold{\varepsilon}_t 
+ = (\varepsilon_{1, t}, \varepsilon_{2, t})^T \sim N_2(
+ \textbf{0}, \textbf{V})$, 
+ $ \textbf{V} = \left(
+    \begin{matrix}
+    \sigma^2_{\varepsilon_{1, t}} &
+    \sigma_{\varepsilon_{1, t}} \sigma_{\varepsilon_{2, t}} \rho \\
+    \sigma_{\varepsilon_{1, t}} \sigma_{\varepsilon_{2, t}} \rho
+    & \sigma^2_{\varepsilon_{2, t}}
+    \end{matrix}
+    \right)$},
+  with, e.g.,
+  
+  \vspace{-2mm}
+  \begin{table}[hb!]
+  \begin{center}
+    { \small
+    \begin{tabular}{c c c c}
+    %\hline
+    \hline
+    %\vspace{-3mm}
+      $\sigma_{\varepsilon_{1, t}} = \exp(\log(1.5))$, &
+      $\sigma_{\varepsilon_{2, t}} = \exp(0)$, &
+      $\rho = 0.75$, &
+      $(\beta_0, \beta_1, \beta_2)^T = (0.0, 2.5, -0.32)^T$. \\
+    %\hline
+    \hline
+    \end{tabular}
+    }
+      \end{center}
+  \end{table}
+
+\newpage
+  The initial values, $y_{1, 1}$ and $y_{2, 1}$,
+  are $\varepsilon_{1, 1}$ and $\varepsilon_{2, 1}$ correspondingly.
+  Both, $y_{1, t}$ and $y_{2, t}$
+  can be seen from Figure~\ref{xt:yt}.  
+  The {\color{blue} \texttt{R}} code to generate this data is:
+  
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{set.seed}\hlstd{(}\hlnum{2017081901}\hlstd{)}
+\hlstd{> }\hlstd{nn} \hlkwb{<-} \hlnum{380}
+\hlstd{> }\hlstd{warm.up} \hlkwb{<-} \hlnum{100}
+\hlstd{> }\hlstd{rho} \hlkwb{<-} \hlnum{0.75} \hlopt{*} \hlnum{1}
+\hlstd{> }\hlcom{# Gaussian noise1}
+\hlstd{> }\hlstd{s2u} \hlkwb{<-} \hlkwd{exp}\hlstd{(}\hlkwd{log}\hlstd{(}\hlnum{1.5}\hlstd{))}
+\hlstd{> }\hlcom{#ut <- rnorm(nn, 0, s2u)}
+\hlstd{> }\hlcom{# Gaussian noise2}
+\hlstd{> }\hlstd{s2w} \hlkwb{<-} \hlkwd{exp}\hlstd{(}\hlnum{0}\hlstd{)}
+\hlstd{> }\hlcom{#wt <- rnorm(nn, 0, s2w)}
+\hlstd{> }\hlstd{my.errors} \hlkwb{<-} \hlkwd{rbinorm}\hlstd{(nn,} \hlkwc{mean1} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{mean2} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{var1} \hlstd{= s2u,} \hlkwc{var2} \hlstd{= s2w,} \hlkwc{cov12} \hlstd{= rho)}
+\hlstd{> }\hlstd{ut} \hlkwb{<-} \hlstd{my.errors[,} \hlnum{1}\hlstd{]}
+\hlstd{> }\hlstd{wt} \hlkwb{<-} \hlstd{my.errors[,} \hlnum{2}\hlstd{]}
+\hlstd{> }\hlstd{yt} \hlkwb{<-} \hlstd{xt} \hlkwb{<-} \hlkwd{numeric}\hlstd{(nn)}
+\hlstd{> }\hlstd{xt[}\hlnum{1}\hlstd{]} \hlkwb{<-} \hlstd{ut[}\hlnum{1}\hlstd{]}
+\hlstd{> }\hlstd{yt[}\hlnum{1}\hlstd{]} \hlkwb{<-} \hlstd{wt[}\hlnum{1}\hlstd{]}
+\hlstd{> }\hlstd{coint.coefs} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{0.0}\hlstd{,} \hlnum{2.5}\hlstd{,} \hlopt{-}\hlnum{0.32}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwa{for} \hlstd{(ii} \hlkwa{in} \hlnum{2}\hlopt{:}\hlstd{nn) \{}
+\hlstd{  }  \hlstd{xt[ii]} \hlkwb{<-}  \hlstd{xt[ii} \hlopt{-} \hlnum{1}\hlstd{]} \hlopt{+} \hlstd{ut[ii]}
+\hlstd{  }  \hlstd{yt[ii]} \hlkwb{<-} \hlstd{coint.coefs[}\hlnum{1}\hlstd{]} \hlopt{+} \hlstd{coint.coefs[}\hlnum{2}\hlstd{]} \hlopt{*} \hlstd{xt[ii]}  \hlopt{+}
+\hlstd{  }                     \hlstd{coint.coefs[}\hlnum{3}\hlstd{]} \hlopt{*} \hlstd{yt[ii} \hlopt{-} \hlnum{1}\hlstd{]} \hlopt{+} \hlstd{wt[ii]}
+\hlstd{  }\hlstd{\}}
+\hlstd{> }\hlstd{xt} \hlkwb{<-} \hlstd{xt[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{warm.up)]}
+\hlstd{> }\hlstd{yt} \hlkwb{<-} \hlstd{yt[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{warm.up)]}
+\hlstd{> }
+\hlstd{> }\hlcom{## Update errors}
+\hlstd{> }\hlstd{ut} \hlkwb{<-} \hlstd{my.errors[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{warm.up),} \hlnum{1}\hlstd{]}
+\hlstd{> }\hlstd{wt} \hlkwb{<-} \hlstd{my.errors[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{warm.up),} \hlnum{2}\hlstd{]}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+
+\begin{figure}[t!]
+\begin{center}
+\vspace{-10mm}
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}
+
+{\centering \includegraphics[width=0.80\linewidth]{figure/plot-xt-yt-1} 
+
+}
+
+
+
+\end{knitrout}
+\end{center}
+\caption{Non--stationary (simulated) series 
+{\color{darkblue} $y_{1, t}$} and
+{\color{darkblue} $y_{2, t}$} from
+Model (\ref{sim:coint}).}
+\label{xt:yt}
+\end{figure}
+
+
+\vspace{3mm}
+To model the dynamic behaviour of~(\ref{sim:coint}), I will 
+use an order($u$, $v$) error--correction model  [ECM($u$, $v$)],
+whose general form is given by 
+\citep[equations 4.5a and 4.5b, Ch. 4 in][]{pfaf:2011}:
+%
+\begin{align} \label{ecm:model}
+\Delta y_{2, t} =~&\phi_0 + \gamma_1 \widehat{z}_{t - 1} +
+ \sum_{i = 1}^u \phi_{1, i} \Delta y_{1, t - i} +
+ \sum_{j = 1}^v \phi_{2, j} \Delta y_{2, t - j} +
+ \varepsilon_{2, t}, \\
+ \nonumber \Delta y_{1, t} =~&\psi_0 + \gamma_2 \widehat{z}_{t - 1} +
+ \sum_{i = 1}^u \psi_{1, i} \Delta y_{2, t - i} +
+ \sum_{j = 1}^v \psi_{2, j} \Delta y_{1, t - j} +
+ \varepsilon_{1, t},
+\end{align}
+\noindent
+$t = 1, \ldots, T$,
+ where $\mathbold{\varepsilon}_t = 
+(\varepsilon_{1, t}, \varepsilon_{2, t})^T
+\stackrel{\textrm{iid}}{\sim} N_2(\mathbf{0}, 
+\mathbf{\Sigma})$,
+$\widehat{z}_t$ are the residuals of the static regression
+$y_{2, t} \sim y_{1, t}$,
+and $\Delta (\cdot) = (1 - L)(\cdot)$. The adjustment rate of the 
+error from the long--run equilibrium is determined by $\gamma_1$,
+expected to be negative, if the system converges from its long--run
+equilibrium path.
+%if the series
+%$(y_{1, t}, y_{2, t})^T$ are to be cointegrated.
+Note, while the vector--error terms
+$\mathbold{\varepsilon}_t$ are iid, 
+its components may be correlated  in the same time period
+(contemporaneous correlation).
+
+  
+  
+  \vspace{2mm}
+ From the two--step methodology \citep{engl:gran:1987},
+ we firstly must verify that
+ $y_{1, t}$ and $y_{2, t}$ are cointegrated. For this,
+the residuals, $\widehat{z}_t$, of the
+static regression $y_{2, t} \sim y_{1, t}$ must conform with 
+stationary conditions \citep{engl:gran:1987}. 
+This may be checked via the KPSS unit root test
+\citep{kpss:1991} implemented in
+{\color{blue}\texttt{KPSS.test()}}, from the package
+{\color{cyan}\textsf{VGAMextra}}.
+%In this case, {\color{blue} \tt{ARff()}} is called, along
+%with {\color{blue} \tt{noChecks = FALSE}}, requesting 
+%the unit root test.
+Here, the null hypothesis
+states that residuals $\widehat{z}_t$ conform with
+stationary conditions.
+The results, shown below, confirm no unit roots for
+$\{ \widehat{z}_t \}$, that is,
+$y_{1, t}$ and $y_{2, t}$ are cointegrated.
+
+
+
+
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }    \hlstd{errors.coint}   \hlkwb{<-} \hlkwd{residuals}\hlstd{(}\hlkwd{lm}\hlstd{(yt} \hlopt{~} \hlstd{xt))}
+\hlstd{> }    \hlstd{kpss.VGAmextra} \hlkwb{<-} \hlkwd{KPSS.test}\hlstd{(}\hlkwc{x} \hlstd{= errors.coint,} \hlkwc{type.H0} \hlstd{=} \hlstr{"trend"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+
+ H0: trend Stationarity vs. H1: Unit root. 
+      Test statistic: 0.078777 
+
+p-value: 0.25348
+Upper tail percentiles:
+                  10%    5%  2.5%    1%
+Critical value  0.119 0.146 0.176 0.216
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+Alternatively, we can fit an AR(1) with no intercept over
+$\{ \widehat{z_t}\}$, say $\widehat{z_t} = \beta_1 \widehat{z}_{t - 1} +
+w_{t}$, $\{ w_t \}$ white noise, 
+and then verify whether $\alpha = 1$ is a root of the
+polynomial $\alpha - \widehat{\beta_1} = 0$.
+For this, I will use the family function 
+{\color{blue} \texttt{ARff()}}, with the argument
+{\color{blue} \texttt{noChecks = FALSE}}. The latter internally calls
+the function 
+{\color{blue} \texttt{checkTS.VGAMextra()}} that computes the 
+polynomial roots requested. The code is given next:
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }    \hlstd{data.errors}   \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{est.errors} \hlstd{= errors.coint)}
+\hlstd{> }    \hlstd{fit.root.test} \hlkwb{<-} \hlkwd{vglm}\hlstd{(est.errors} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{family} \hlstd{=} \hlkwd{ARff}\hlstd{(}\hlkwc{order} \hlstd{=} \hlnum{1}\hlstd{,}
+\hlstd{  }                                                        \hlkwc{nodrift} \hlstd{=} \hlnum{TRUE}\hlstd{,}
+\hlstd{  }                                                        \hlkwc{noChecks} \hlstd{=} \hlnum{FALSE}\hlstd{),}
+\hlstd{  }                          \hlkwc{data} \hlstd{= data.errors,} \hlkwc{trace} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+
+Checks on stationarity / invertibility successfully performed. 
+No roots lying inside the unit circle. 
+Further details within the 'summary' output.
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+% In this context \cite{pfaf:2011}
+% provides some \Rcol code to manage this model.
+ 
+ \vspace{2mm}
+ Once the unit root hypothesis has been rejected for
+ $\{ \widehat{z}_t \}$, an
+ ECM($u$, $v$) may be specified.
+ Interestingly, assuming bivariate Normal errors,
+$\mathbold{\varepsilon}_t = (\varepsilon_{1, t},
+\varepsilon_{2, t})^T$, the aforecited ECM($u$, $v$) 
+(cf.~(\ref{ecm:model})) can be seen as a VGLM with two--responses,
+%to be embodied in the {\color{blue} \tt{vglm}} or
+%{\color{blue} \tt{rrvglm}} calls. For this, set
+$ \Delta y_{1, t~|\Phi_{t - 1}} = 
+\Delta y_{1 , t} $, and
+$ \Delta y_{2, t~| \Phi_{t - 1}} =
+\Delta y_{2, t} $, following the bivariate Normal distribution, 
+and fitting linear models 
+over the conditional means $\mathbb{E}(\Delta y_{1, t~|\Phi_{t - 1}} ) =
+\mu_{\Delta_{y1, t}}$, and
+$\mathbb{E}(\Delta y_{2, t~|\Phi_{t - 1}} ) =
+\mu_{\Delta_{y2, t}}$.
+The result is a new class of VGLMs, called
+VGLM-ECMs, with following statistical structure:
+%(called {\color{blue} \tt{dify1}} and
+%{\color{blue} \tt{difx1}} respectively),
+%which properly defines the ECM($2$, $2$)
+%model to be estimated,
+\begin{align} \label{coint:vglmfinal}
+&~(\Delta y_{1, t},
+\Delta y_{2, t} )^T \sim
+N_2((\mu_{\Delta y_{1, t}},
+\mu_{\Delta y_{2, t}})^T,
+\mathrm{\mathbf{\Sigma}}) \\
+\nonumber
+\mu_{\Delta y_{2, t}}
+=&~\phi_0 + \gamma_1 \widehat{z}_{t - 1} +
+\sum_{i = 1}^u \phi_{1, i} \Delta y_{1, t - i} +
+\sum_{j = 1}^v \phi_{2, j} \Delta y_{2, t - j} +
+\boldsymbol{\beta_1}^T \mathbold{x} | \Phi_{t - 1}, \\
+\nonumber
+\mu_{\Delta y_{1, t}}
+=&~\psi_0 + \gamma_2 \widehat{z}_{t - 1} +
+\sum_{i = 1}^u \psi_{1, i} \Delta y_{2, t - i} +
+\sum_{j = 1}^v \psi_{2, j} \Delta y_{1, t - j} +
+\boldsymbol{\beta_2}^T \mathbold{x} | \Phi_{t - 1},
+\end{align}
+
+\noindent 
+with $\mathrm{\mathbf{\Sigma}} = 
+\left(
+ \begin{matrix}
+   \sigma^2_{\varepsilon_{1, t}} & \sigma_{\varepsilon_{1, t},~
+   \varepsilon_{2, t}} \\
+    \sigma_{\varepsilon_{1, t},
+   \varepsilon_{2, t}} & \sigma^2_{\varepsilon_{2, t}}
+ \end{matrix}
+\right)
+$,
+$ \sigma_{\varepsilon_{1, t},~
+   \varepsilon_{2, t}} = \sigma_{\varepsilon_{1, t}} \cdot
+   \sigma_{\varepsilon_{2, t}} \cdot \rho$,
+   and five linear predictors:
+   %\footnote{${\color{blue} \texttt{rhobit(}}\theta {\color{blue} \texttt{)}}=
+%\log \frac{1 + \theta}{1 - \theta}$, for $-1 < \theta < 1$.}
+$$
+\mathbold{\eta}_{coint} = (\mu_{\Delta y_{2, t}}, 
+\mu_{\Delta y_{1, t}},
+\log \sigma^2_{\mathbold{\varepsilon}_{1, t}},
+\log \sigma^2_{\mathbold{\varepsilon}_{2, t}},
+%{\color{blue} \texttt{rhobit(}} \rho {\color{blue}\texttt{)}} 
+\sigma_{\varepsilon_{1, t},~\varepsilon_{2, t}})^T.
+$$
+
+Here, $\mathbold{x} | \Phi_{t - 1}$ denotes an additional set of
+explanatories with informaiton up to time $t - 1$, i.e., $\Phi_{t - 1}$,
+while $\boldsymbol{\beta}_1^T$ and $\boldsymbol{\beta}_2^T$ are vectors
+with coefficients to be estimated.
+
+\vspace{3mm}
+Within the VGLM/VGAM framework, VGLM--ECMs as that from
+(\ref{coint:vglmfinal}) are described by the family function
+{\color{blue} \texttt{ECM.EngleGran()}} from
+{\color{cyan} \textsf{VGAMextra}}.
+For illustrative purposes,
+an VGLM--ECM($2$, $2$), or simply ECM($2$, $2$), with 
+no covariates $\boldsymbol{x} |\Phi_{t - 1}$,
+will be fitted to the cointegrated series (\ref{sim:coint}).
+%ote the use of the family function 
+%\color{blue} \texttt{binormal()}} from
+%{\color{cyan} \textsf{VGAM}}. 
+The \Rcol code is presented in Table~\ref{code:coint}.
+\vspace{-1mm}
+
+{\small
+\begin{center}
+\begin{table}[ht!]
+\caption{\Rcol code to fit an ECM($2$, $2$) to
+(\ref{sim:coint}) using VGLMs and VGLM-ECMs.}
+\label{code:coint}
+\begin{tabular}{l}
+\hline
+\hline
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{coint.Data} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{y1} \hlstd{= xt,} \hlkwc{y2} \hlstd{= yt)}
+\hlstd{> }\hlcom{### Using the VGLM--family function ECM.EngleGran()}
+\hlstd{> }\hlstd{fit.coint1} \hlkwb{<-} \hlkwd{vglm}\hlstd{(}\hlkwd{cbind}\hlstd{(y1, y2)} \hlopt{~} \hlnum{1}\hlstd{,}
+\hlstd{  }                   \hlkwd{ECM.EngleGran}\hlstd{(}\hlkwc{ecm.order} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,} \hlnum{2}\hlstd{),}
+\hlstd{  }                                 \hlkwc{resids.pattern} \hlstd{=} \hlstr{"neither"}\hlstd{,}
+\hlstd{  }                                 \hlkwc{zero} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"var"}\hlstd{,} \hlstr{"cov"}\hlstd{)),}
+\hlstd{  }                   \hlkwc{trace} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{data} \hlstd{= coint.Data)}
+\hlstd{> }\hlstd{my.coefs} \hlkwb{<-} \hlkwd{fitted.values}\hlstd{(fit.coint1)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\\
+\hline
+\hline
+\end{tabular}
+\end{table}
+\end{center}
+}
+
+\newpage
+Note, 
+\begin{enumerate}
+\item The cointegrating vector,
+$\mathbold{\alpha}$ (cf. (\ref{eq:one}))
+is estimated directly by 
+{\color{blue} \texttt{ECM.EngleGran()}}, and shown right after
+the Fisher scoring iterations, as follows:
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{coint.Data} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{y1} \hlstd{= xt,} \hlkwc{y2} \hlstd{= yt)}
+\hlstd{> }\hlstd{fit.coint1} \hlkwb{<-} \hlkwd{vglm}\hlstd{(}\hlkwd{cbind}\hlstd{(y1, y2)} \hlopt{~} \hlnum{1}\hlstd{,}
+\hlstd{  }                   \hlkwd{ECM.EngleGran}\hlstd{(}\hlkwc{ecm.order} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,} \hlnum{2}\hlstd{),}
+\hlstd{  }                                 \hlkwc{resids.pattern} \hlstd{=} \hlstr{"neither"}\hlstd{,}
+\hlstd{  }                                 \hlkwc{zero} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"var"}\hlstd{,} \hlstr{"cov"}\hlstd{)),} \hlcom{# Default}
+\hlstd{  }                   \hlkwc{trace} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{data} \hlstd{= coint.Data)}
+\end{alltt}
+\begin{verbatim}
+VGLM    linear loop  1 :  loglikelihood = -943.83068
+VGLM    linear loop  2 :  loglikelihood = -794.57369
+VGLM    linear loop  3 :  loglikelihood = -769.48295
+VGLM    linear loop  4 :  loglikelihood = -769.45813
+VGLM    linear loop  5 :  loglikelihood = -769.45813
+
+Co-integrated vector:
+ betaY2  betaY1 
+ 1.0000 -1.9077 
+                      
+Final sample size: 277
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{my.coefs} \hlkwb{<-} \hlkwd{fitted.values}\hlstd{(fit.coint1)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Here, {\color{blue} \texttt{resids.pattern = "neither"}} indicates that
+residuals are to be computed from he regression $y_2 \sim y_1$, by MLE.
+
+
+\item Several choices are available to estimate the
+cointegrated vector $\boldsymbol{\alpha}$ from
+{\color{blue} \texttt{ECM.EngleGran()}}.
+It can be obtained by linear regression
+depending upon argument {\color{blue}\code{resids.pattern}},
+as follows:
+
+1) $y_{2, t} = \alpha_0 + \alpha_1 y_{1, t} + z_t$, 
+then $\boldsymbol{\alpha} = (1, -\alpha_0, -\alpha_1)^T$,
+if {\color{blue} \texttt{resids.pattern = "intercept"}},
+
+2) $y_{2, t} = \alpha_1 y_{1, t} + \alpha_2 t + z_t$, 
+then $\boldsymbol{\alpha} = (1, -\alpha_1, -\alpha_2)^T$,
+if {\color{blue} \texttt{resids.pattern = "trend"}},
+
+3) $y_{2, t} = \alpha_1 y_{1, t} + z_t$, 
+then $\boldsymbol{\alpha} = (1, -\alpha_1)^T$,
+if {\color{blue} \texttt{resids.pattern = "neither"}}, or else,
+
+4) $y_{2, t} = \alpha_0 + \alpha_1 y_{1, t} + \alpha_2 t + z_t$,
+then $\boldsymbol{\alpha} = (1, -\alpha_0, -\alpha_1, -\alpha_2)^T$,
+if {\color{blue} \texttt{resids.pattern = "both"}}.
+
+For further details see {\color{blue} \texttt{ECM.EngleGran()}}
+help documentation.
+\end{enumerate}
+
+
+
+The estimated coefficients are retrieved from the object
+{\color{blue} \tt{fit.coint1}}, producing the next output
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{coef}\hlstd{(fit.coint1,} \hlkwc{matrix} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+                Diff1     Diff2 loge(var1) loge(var2)  cov12
+(Intercept)  0.117883  0.283723     0.3816     2.6047 4.3502
+ErrorsLag1   0.033623 -0.965105     0.0000     0.0000 0.0000
+diffy1Lag1  -0.201602  1.581448     0.0000     0.0000 0.0000
+diffy1Lag2   0.032389  0.078887     0.0000     0.0000 0.0000
+diffy2Lag1   0.069592 -1.010039     0.0000     0.0000 0.0000
+diffy2Lag2   0.038764  0.080395     0.0000     0.0000 0.0000
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+
+
+As expected, $\widehat{\gamma}_1 \approx $
+\ensuremath{-0.965}
+%and $\widehat{\gamma}_2$ = s.coef[2, 2] 
+is negative in sign (and close to unity),
+assuring the system convergence to its long--run
+equilibrium path. Overall, results show that $y_{1, t}$ and 
+$y_{2, t}$ are
+two cointegrated $I(1)$--variables guaranteeing 
+\textit{Granger causality} in one direction.
+More precisely, one series may be predicted
+with help of the other.
+
+\vspace{2mm}
+The above methodology may be collated with that dispatched in
+\cite{pfaf:2011} by 
+embedding the artificial data (\ref{sim:coint}) into
+the \Rcol code provided. 
+Here, the authors consider a linear model with intercept
+to estimate the residuals.
+Hence, we modify the performance of 
+{\color{blue} \texttt{ECM.EngleGran()}} correspondingly
+by setting {\color{blue} \texttt{resids.pattern = "intercept"}},
+as follows:
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{fit.coint2} \hlkwb{<-} \hlkwd{vglm}\hlstd{(}\hlkwd{cbind}\hlstd{(y1, y2)} \hlopt{~} \hlnum{1}\hlstd{,}
+\hlstd{  }                   \hlkwd{ECM.EngleGran}\hlstd{(}\hlkwc{ecm.order} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,} \hlnum{2}\hlstd{),}
+\hlstd{  }                                 \hlkwc{resids.pattern} \hlstd{=} \hlstr{"intercept"}\hlstd{,} \hlcom{# To match Pfaff (2011)}
+\hlstd{  }                                 \hlkwc{zero} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"var"}\hlstd{,} \hlstr{"cov"}\hlstd{)),} \hlcom{# Default}
+\hlstd{  }                   \hlkwc{trace} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{data} \hlstd{= coint.Data)}
+\end{alltt}
+\begin{verbatim}
+VGLM    linear loop  1 :  loglikelihood = -943.70537
+VGLM    linear loop  2 :  loglikelihood = -793.78785
+VGLM    linear loop  3 :  loglikelihood = -768.45283
+VGLM    linear loop  4 :  loglikelihood = -768.42765
+VGLM    linear loop  5 :  loglikelihood = -768.42765
+
+Co-integrated vector:
+     betaY2 (Intercept)      betaY1 
+   1.000000   -0.041269   -1.906651 
+                      
+Final sample size: 277
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{coef}\hlstd{(fit.coint2,} \hlkwc{matrix} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+                Diff1     Diff2 loge(var1) loge(var2)  cov12
+(Intercept)  0.119537  0.247060    0.38157     2.6047 4.3509
+ErrorsLag1   0.037807 -0.974324    0.00000     0.0000 0.0000
+diffy1Lag1  -0.206083  1.592211    0.00000     0.0000 0.0000
+diffy1Lag2   0.032160  0.081888    0.00000     0.0000 0.0000
+diffy2Lag1   0.071070 -1.013447    0.00000     0.0000 0.0000
+diffy2Lag2   0.038036  0.081532    0.00000     0.0000 0.0000
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+Now, we run the code from \cite{pfaf:2011} using
+the generated data. Note that the differences and lagged values
+required need to be computed and named firstly. 
+The following \Rcol code is an option for this:
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlcom{### Regression of yt on xt, save residuals. Compute Order--1 differences.}
+\hlstd{> }\hlstd{errors.coint} \hlkwb{<-} \hlkwd{residuals}\hlstd{(}\hlkwd{lm}\hlstd{(yt} \hlopt{~} \hlstd{xt))}  \hlcom{# Residuals from the static regression yt ~ xt}
+\hlstd{> }\hlstd{difx1} \hlkwb{<-} \hlkwd{diff}\hlstd{(}\hlkwd{ts}\hlstd{(xt),} \hlkwc{lag} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{differences} \hlstd{=} \hlnum{1}\hlstd{)}  \hlcom{# First difference for xt}
+\hlstd{> }\hlstd{dify1} \hlkwb{<-} \hlkwd{diff}\hlstd{(}\hlkwd{ts}\hlstd{(yt),} \hlkwc{lag} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{differences} \hlstd{=} \hlnum{1}\hlstd{)}  \hlcom{# First difference for yt}
+\hlstd{> }
+\hlstd{> }\hlcom{### Set up the dataset (coint.data), including Order-2 lagged differences.}
+\hlstd{> }\hlstd{coint.data} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwd{embed}\hlstd{(difx1,} \hlnum{3}\hlstd{),} \hlkwd{embed}\hlstd{(dify1,} \hlnum{3}\hlstd{))}
+\hlstd{> }\hlkwd{colnames}\hlstd{(coint.data)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"difx1"}\hlstd{,} \hlstr{"difxLag1"}\hlstd{,} \hlstr{"difxLag2"}\hlstd{,}
+\hlstd{  }                          \hlstr{"dify1"}\hlstd{,} \hlstr{"difyLag1"}\hlstd{,} \hlstr{"difyLag2"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlcom{### Remove unutilized lagged errors accordingly.}
+\hlstd{> }\hlstd{errors.cointLag1} \hlkwb{<-} \hlstd{errors.coint[}\hlnum{1}\hlopt{:}\hlstd{(nn} \hlopt{-} \hlstd{warm.up} \hlopt{-} \hlnum{3}\hlstd{)]}
+\hlstd{> }\hlstd{coint.data} \hlkwb{<-} \hlkwd{transform}\hlstd{(coint.data,} \hlkwc{errors.cointLag1} \hlstd{= errors.cointLag1)}
+\hlstd{> }
+\hlstd{> }\hlcom{## Use lm() to regress 'dy2' on 'errors.cointLag1', and oreder-2 differences}
+\hlstd{> }\hlstd{ecm.reg} \hlkwb{<-} \hlkwd{lm}\hlstd{(dify1} \hlopt{~} \hlstd{errors.cointLag1} \hlopt{+} \hlstd{difxLag1} \hlopt{+} \hlstd{difxLag2} \hlopt{+}
+\hlstd{  }                \hlstd{difyLag1} \hlopt{+} \hlstd{difyLag2,} \hlkwc{data} \hlstd{= coint.data)}
+\hlstd{> }\hlkwd{coef}\hlstd{(ecm.reg)}
+\end{alltt}
+\begin{verbatim}
+     (Intercept) errors.cointLag1         difxLag1         difxLag2 
+         0.24706         -0.97432          1.59221          1.93958 
+        difyLag1         difyLag2 
+        -1.01345         -0.89279 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Finally, the coefficients from both fits can be compared:
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ECMcoefs} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{VGLM} \hlstd{=} \hlkwd{coef}\hlstd{(fit.coint2,} \hlkwc{matrix} \hlstd{=} \hlnum{TRUE}\hlstd{)[,} \hlnum{2}\hlstd{],}
+\hlstd{  }                       \hlkwc{Pfaf} \hlstd{=} \hlkwd{coef}\hlstd{(ecm.reg))}
+\hlstd{> }\hlkwd{head}\hlstd{(ECMcoefs,} \hlnum{10}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+                 VGLM     Pfaf
+(Intercept)  0.247060  0.24706
+ErrorsLag1  -0.974324 -0.97432
+diffy1Lag1   1.592211  1.59221
+diffy1Lag2   0.081888  1.93958
+diffy2Lag1  -1.013447 -1.01345
+diffy2Lag2   0.081532 -0.89279
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+\vspace{2mm}
+Further improvements are to be incorporated over time, .e.g,
+employing the class of Reduced--Rank VGLMs
+\citep[RR--VGLMs]{yee:2015}
+to aid the number of coefficients as $u$ and $v$ increase,
+or to implement VGLM family functions to readily handle
+Vector ECMs (VECMs) for multiple cointegrate time series.
+%to write, e.g., {\color{blue} \texttt{trinormal()}}, and
+%#then, write suitable family functions for cointegrated
+%time series (beyond the bivariate case).
+
+\vspace{2mm}
+On the other hand, there is a number of advantages conferred
+by VGLM-ECMs and {\color{blue} \texttt{ECM.EngleGran()}}.
+Firstly, the inclusion of covariates that may be integrated to 
+model the volatility involved, i.e.,
+variance and covariances equations, in addition to the mean
+models. For this, one can use constraint matrices on the
+parameters \cite{yee:2015}, or simply set up the argument
+{\color{blue} \texttt{zero}}. 
+Secondly, {\color{blue} \texttt{ECM.EngleGran()}} also 
+provides estimates of the variance--covariance structure of
+the disturbances, $\boldsymbol{\varepsilon}_t$. 
+In our artificial example~(\ref{sim:coint}), it is given by
+
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{1, 1, 0.878}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{coef}\hlstd{(fit.coint2,} \hlkwc{matrix} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+                Diff1     Diff2 loge(var1) loge(var2)  cov12
+(Intercept)  0.119537  0.247060    0.38157     2.6047 4.3509
+ErrorsLag1   0.037807 -0.974324    0.00000     0.0000 0.0000
+diffy1Lag1  -0.206083  1.592211    0.00000     0.0000 0.0000
+diffy1Lag2   0.032160  0.081888    0.00000     0.0000 0.0000
+diffy2Lag1   0.071070 -1.013447    0.00000     0.0000 0.0000
+diffy2Lag2   0.038036  0.081532    0.00000     0.0000 0.0000
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+The package 
+{\color{cyan} \textsf{tsDyn}} is an alternative, however,
+it is restricted to 
+Covariagtes
+EIMs exact 
+no need to compute covs
+\newpage
+\bibliography{./MirandaYeeJTS.bib} 
+\nocite{*}
+\end{document}
