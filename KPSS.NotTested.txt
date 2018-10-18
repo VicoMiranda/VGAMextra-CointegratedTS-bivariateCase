@@ -1,0 +1,90 @@
+
+
+yt <- numeric(200)
+yt[1] <- 1
+for (ii in 2:200)
+  yt[ii] <-  yt[ii - 1] + rnorm(1)
+plot(yt)
+
+ttd <- data.frame(y1 = yt[-c(1:50)])
+fit1 <- vglm(y1 ~ 1, ARff, data = ttd, trace = TRUE)
+
+library(forecast)
+
+
+yt2 <- yt[-c(1:50)]
+yt2 <- yt2[-1] - yt2[-150]
+yt2
+
+ttd2 <- data.frame(y = yt2)
+fit1 <- vglm(y~ 1, ARff, data = ttd2, trace = TRUE)
+ndiffs(ttd$y1, test = "kpss")
+
+t.st
+x.fin <- data.frame(t = 1:length(yt[-c(1:50)]), x = yt[-c(1:50)])
+head(x.fin)
+
+kpss.test <- function(x, type.st = c("level", "trend")[1],
+                      trunc.l = c("short", "large")[1]) {
+  
+  trunc.l <- match.arg(trunc.l, c("short", "large"))[1]
+  trunc.l <- (match.arg(trunc.l, "short") == "short") 
+  t.st <- match.arg(type.st, c("level", "trend"))[1]
+  t.st <- which(t.st == c("level", "trend"))[1]
+  x.fin <- cbind(x); rm(x)
+  
+  if (ncol(x.fin) != 1)
+    stop("At present, only univariate TSs handled.")
+  
+  nn <- nrow(x.fin)
+  x.fin <- data.frame(t = 1:nn, x = x.fin)
+  my.res <- switch(t.st,
+                   with(x.fin, residuals(lm(x ~ 1))),
+                   with(x.fin, residuals(lm(x ~ t))))
+  
+  #var.rs <- sum(my.res^2) / nn
+  s2l    <- sum(my.res^2) / nn + 
+             con.est.s2l(resids = my.res,
+                        l.short = trunc.l)
+  eta.fin <- (sum(cumsum(my.res)^2) / nn^2) / s2l
+
+  crit.val <- if (type.st == "level")
+    matrix(c(0.347, 0.463, 0.573, 0.739), 1, 4, byrow = TRUE) else
+      matrix(c(0.119, 0.146, 0.176, 0.216), 1, 4, byrow = TRUE) 
+  colnames(crit.val) <- c("10%", "5%", "2.5%", "1%")
+  rownames(crit.val) <- c("Critival value ")
+  
+  
+  cat("\n",
+      "H0: Stationarity vs. H1: Unit root. 
+      Test statistic:", eta.fin, "\n\n")
+
+  cat("Upper tail percentiles:\n")
+  print(crit.val)
+  
+  invisible()
+  
+}
+
+con.est.s2l <- function(resids, l.short = NULL) {
+  
+  if (length(l.short) && !is.logical(l.short))
+    stop("Bad input for argument 'l.short'.")
+  
+  nn.i <- length(c(resids))
+  bigL <- if (l.short)  ceiling(3 * sqrt(nn.i) /11) else
+    ceiling(9 * sqrt(nn.i) /11)
+  
+  # Term 1 not needed. Given by kpss.test
+  # Term 2
+  lag.rb <- WN.lags(y = cbind(resids), lags = bigL)
+  res.p <- apply(lag.rb, 2, function(x) {
+    sum(x * resids)
+  })
+  
+  sum(res.p * (1 - (1:bigL)/(bigL + 1)))
+
+}
+
+
+
